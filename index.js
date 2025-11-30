@@ -16,6 +16,7 @@ import progressRoutes from "./api/routes/progressRoutes.js";
 import { problemDetails } from "./api/routes/problemDetails.route.js";
 import { problemsTable } from "./api/routes/problemsTable.route.js";
 import roadmapRoutes from "./api/routes/roadmap.route.js";
+import executeRoutes from "./api/routes/execute.route.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -25,7 +26,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5137",
   process.env.FRONTEND_URL,
-  "https://coderafrontend.onrender.com", 
+  "https://coderafrontend.onrender.com",
 ].filter(Boolean);
 
 app.use(
@@ -100,6 +101,7 @@ app.use("/api/roadmap", roadmapRoutes);
 app.use("/api/problemsTable", problemsTable);
 app.use("/api/problem", problemDetails);
 app.use(progressRoutes);
+app.use("/api/execute", executeRoutes);
 
 // SERVER
 const PORT = process.env.PORT || 3000;
