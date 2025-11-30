@@ -21,32 +21,34 @@ import executeRoutes from "./api/routes/execute.route.js";
 const app = express();
 const server = http.createServer(app);
 
-
+// ALLOWED ORIGINS
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5137",
   process.env.FRONTEND_URL,
-  "https://coderafrontend.onrender.com",
+  "https://coderafrontend.vercel.app",
 ].filter(Boolean);
 
+// EXPRESS CORS
 app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
 
+// SOCKET.IO
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
     credentials: true,
-    methods: ["GET", "POST"],
   },
+  transports: ["websocket", "polling"], // REQUIRED FOR RENDER
 });
 
 // SOCKET LOGIC
 const rooms = new Map();
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
@@ -85,7 +87,7 @@ io.on("connection", (socket) => {
 app.use(express.json());
 app.use(cookieParser());
 
-// MONGODB
+// MONGO
 mongoose
   .connect(process.env.MONGO)
   .then(() => console.log("MongoDB Connected"))
