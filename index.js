@@ -4,7 +4,6 @@ import { Server } from "socket.io";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
-import path from "path";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -20,27 +19,33 @@ import roadmapRoutes from "./api/routes/roadmap.route.js";
 
 const app = express();
 const server = http.createServer(app);
+
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5137",
+  process.env.FRONTEND_URL,
+  "https://coderafrontend.onrender.com", 
+].filter(Boolean);
+
 app.use(
   cors({
- origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    origin: allowedOrigins,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
 
-
-
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: allowedOrigins,
+    credentials: true,
     methods: ["GET", "POST"],
   },
 });
 
-
-// ----------------- SOCKET LOGIC -----------------
+// SOCKET LOGIC
 const rooms = new Map();
-
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
@@ -75,18 +80,17 @@ io.on("connection", (socket) => {
   });
 });
 
-// -------------- MIDDLEWARE -----------------
-app.use(cors());
+// MIDDLEWARE
 app.use(express.json());
 app.use(cookieParser());
 
-// -------------- MONGODB -----------------
+// MONGODB
 mongoose
   .connect(process.env.MONGO)
   .then(() => console.log("MongoDB Connected"))
   .catch((e) => console.log(e));
 
-// -------------- ROUTES -----------------
+// ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/blog", blogRoutes);
@@ -97,7 +101,7 @@ app.use("/api/problemsTable", problemsTable);
 app.use("/api/problem", problemDetails);
 app.use(progressRoutes);
 
-// -------------- SERVER -----------------
+// SERVER
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Backend + Socket running on port ${PORT}`);
